@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Visual Supports</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F0F4F8;
+    --card: #FFFFFF;
+    --text: #2D3748;
+    --accent-blue: #4299E1;
+    --accent-green: #48BB78;
+    --accent-orange: #ED8936;
+    --accent-purple: #9F7AEA;
+    --accent-red: #FC8181;
+    --accent-teal: #38B2AC;
+    --accent-pink: #ED64A6;
+    --accent-yellow: #ECC94B;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --radius: 20px;
+    --token-earned: #48BB78;
+    --token-empty: #E2E8F0;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* ── NAV TABS ── */
+  .tab-bar {
+    display: flex;
+    gap: 6px;
+    padding: 12px 12px 0;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 14px 8px;
+    border: none;
+    border-radius: 16px 16px 0 0;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #E2E8F0;
+    color: #718096;
+  }
+  .tab-btn.active {
+    background: var(--card);
+    color: var(--text);
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
+  .tab-btn span.tab-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+
+  /* ── PANELS ── */
+  .panel {
+    display: none;
+    padding: 16px;
+    animation: fadeIn 0.25s ease;
+  }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .panel-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  /* ── SCHEDULE ── */
+  .schedule-list { display: flex; flex-direction: column; gap: 14px; }
+  .schedule-item {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 4px solid transparent;
+  }
+  .schedule-item .num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    color: white;
+    flex-shrink: 0;
+  }
+  .schedule-item:nth-child(1) .num { background: var(--accent-blue); }
+  .schedule-item:nth-child(2) .num { background: var(--accent-orange); }
+  .schedule-item:nth-child(3) .num { background: var(--accent-green); }
+  .schedule-item:nth-child(4) .num { background: var(--accent-purple); }
+  .schedule-item .info { flex: 1; }
+  .schedule-item .info .label { font-size: 20px; font-weight: 800; }
+  .schedule-item .emoji { font-size: 40px; }
+  .schedule-item.done {
+    opacity: 0.5;
+    border-color: var(--accent-green);
+    text-decoration: line-through;
+  }
+  .schedule-item.done::after {
+    content: '✅';
+    font-size: 28px;
+    margin-left: auto;
+  }
+  .schedule-item.current {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3), var(--shadow);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(66,153,225,0.3), var(--shadow); } 50% { box-shadow: 0 0 0 6px rgba(66,153,225,0.15), var(--shadow); } }
+  .schedule-hint {
+    text-align: center;
+    color: #A0AEC0;
+    font-weight: 700;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  /* ── CHOICE GRID ── */
+  .choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .choice-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px 12px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 4px solid transparent;
+    position: relative;
+  }
+  .choice-card:active { transform: scale(0.95); }
+  .choice-card.selected {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.3), var(--shadow);
+  }
+  .choice-card .emoji { font-size: 56px; line-height: 1.1; }
+  .choice-card .label { font-size: 18px; font-weight: 800; margin-top: 8px; line-height: 1.2; }
+  .choice-card .sublabel { font-size: 13px; font-weight: 600; color: #A0AEC0; margin-top: 2px; }
+  .choice-card[data-cat="move"] { border-left: 6px solid var(--accent-blue); }
+  .choice-card[data-cat="calm"] { border-left: 6px solid var(--accent-purple); }
+  .choice-card[data-cat="food"] { border-left: 6px solid var(--accent-orange); }
+  .choice-card[data-cat="play"] { border-left: 6px solid var(--accent-teal); }
+
+
+
+  /* ── TOKEN BOARD ── */
+  .token-section { text-align: center; }
+  .token-row { display: flex; justify-content: center; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+  .token {
+    width: 70px; height: 70px; border-radius: 50%; background: var(--token-empty);
+    display: flex; align-items: center; justify-content: center; font-size: 36px;
+    cursor: pointer; transition: all 0.25s; border: 4px solid transparent;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
+  }
+  .token.earned {
+    background: linear-gradient(135deg, #48BB78, #68D391); border-color: #38A169;
+    box-shadow: 0 4px 15px rgba(72,187,120,0.4); animation: popIn 0.3s ease;
+  }
+  @keyframes popIn { 0% { transform: scale(0.5); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+  .token-goal {
+    background: var(--card); border-radius: var(--radius); padding: 20px;
+    box-shadow: var(--shadow); margin-top: 16px;
+  }
+  .token-goal .emoji { font-size: 48px; }
+  .token-goal .label { font-size: 18px; font-weight: 800; margin-top: 6px; }
+  .token-controls { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+  .token-ctrl-btn {
+    padding: 12px 24px; border-radius: 14px; border: none;
+    font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .token-ctrl-btn:active { transform: scale(0.95); }
+  .token-ctrl-btn.add { background: var(--accent-green); color: white; }
+  .token-ctrl-btn.undo { background: #E2E8F0; color: #718096; }
+  .token-ctrl-btn.reset { background: var(--accent-red); color: white; }
+
+  .reward-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .reward-option {
+    padding: 14px 8px; background: var(--card); border-radius: 14px;
+    border: 3px solid #E2E8F0; cursor: pointer; text-align: center; transition: all 0.15s;
+  }
+  .reward-option.active { border-color: var(--accent-orange); background: #FFFAF0; }
+  .reward-option .emoji { font-size: 32px; }
+  .reward-option .label { font-size: 13px; font-weight: 800; margin-top: 4px; }
+
+  /* ── FIRST / THEN ── */
+  .first-then-container { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+  .ft-card {
+    width: 100%; max-width: 360px; background: var(--card); border-radius: var(--radius);
+    padding: 24px; box-shadow: var(--shadow); text-align: center; position: relative;
+  }
+  .ft-card .ft-label {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    padding: 4px 20px; border-radius: 20px; font-size: 16px; font-weight: 900;
+    color: white; letter-spacing: 1px;
+  }
+  .ft-card.first .ft-label { background: var(--accent-blue); }
+  .ft-card.then .ft-label { background: var(--accent-green); }
+  .ft-card .emoji { font-size: 64px; margin-top: 8px; }
+  .ft-card .label { font-size: 20px; font-weight: 800; margin-top: 8px; }
+  .ft-arrow { font-size: 36px; color: #CBD5E0; animation: bounce 1.5s infinite; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+  .ft-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 360px; margin-top: 8px; }
+  .ft-pick-btn {
+    padding: 12px 6px; background: var(--card); border-radius: 14px;
+    border: 3px solid #E2E8F0; cursor: pointer; text-align: center;
+    transition: all 0.15s; font-family: 'Nunito', sans-serif;
+  }
+  .ft-pick-btn:active { transform: scale(0.95); }
+  .ft-pick-btn .emoji { font-size: 28px; }
+  .ft-pick-btn .label { font-size: 11px; font-weight: 800; margin-top: 2px; color: #718096; }
+  .ft-section-label {
+    font-size: 14px; font-weight: 800; color: #A0AEC0; text-transform: uppercase;
+    letter-spacing: 1px; margin-top: 12px; width: 100%; max-width: 360px; text-align: left;
+  }
+
+  /* ── CELEBRATION ── */
+  .celebration {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center; z-index: 999;
+    animation: fadeIn 0.3s ease;
+  }
+  .celebration.show { display: flex; }
+  .celebration-card {
+    background: white; border-radius: 28px; padding: 40px; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: popIn 0.4s ease;
+  }
+  .celebration-card .emoji { font-size: 80px; }
+  .celebration-card .msg { font-size: 28px; font-weight: 900; margin-top: 12px; }
+  .celebration-card .sub { font-size: 16px; color: #718096; font-weight: 700; margin-top: 6px; }
+  .celebration-card button {
+    margin-top: 20px; padding: 14px 36px; border-radius: 16px; border: none;
+    background: var(--accent-green); color: white; font-family: 'Nunito', sans-serif;
+    font-size: 18px; font-weight: 800; cursor: pointer;
+  }
+
+  /* ── TIMER ── */
+  .timer-panel { text-align: center; }
+  .timer-display {
+    font-size: 96px; font-weight: 900; letter-spacing: -3px; margin: 20px 0;
+    color: var(--text); transition: color 0.3s;
+  }
+  .timer-display.warn { color: var(--accent-orange); }
+  .timer-display.critical { color: var(--accent-red); animation: pulse 0.8s infinite; }
+  .timer-presets { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .preset-btn {
+    padding: 12px 20px; border-radius: 14px; border: 3px solid #E2E8F0;
+    background: var(--card); font-family: 'Nunito', sans-serif; font-size: 16px;
+    font-weight: 800; cursor: pointer; transition: all 0.15s;
+  }
+  .preset-btn.active { border-color: var(--accent-blue); background: #EBF8FF; color: var(--accent-blue); }
+  .timer-actions { display: flex; gap: 12px; justify-content: center; }
+  .timer-act-btn {
+    padding: 14px 32px; border-radius: 16px; border: none;
+    font-family: 'Nunito', sans-serif; font-size: 17px; font-weight: 800;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .timer-act-btn:active { transform: scale(0.95); }
+  .timer-act-btn.start { background: var(--accent-green); color: white; }
+  .timer-act-btn.stop { background: var(--accent-red); color: white; }
+  .timer-act-btn.resetT { background: #E2E8F0; color: #718096; }
+
+  .timer-ring-container { position: relative; width: 240px; height: 240px; margin: 0 auto; }
+  .timer-ring-container svg { transform: rotate(-90deg); }
+  .timer-ring-bg { fill: none; stroke: #E2E8F0; stroke-width: 12; }
+  .timer-ring-fg {
+    fill: none; stroke: var(--accent-blue); stroke-width: 12; stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear, stroke 0.3s;
+  }
+  .timer-ring-fg.warn { stroke: var(--accent-orange); }
+  .timer-ring-fg.critical { stroke: var(--accent-red); }
+  .timer-center-text {
+    position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 52px; font-weight: 900;
+  }
+</style>
+</head>
+<body>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('schedule')">
+    <span class="tab-icon">📋</span>Schedule
+  </button>
+  <button class="tab-btn" onclick="switchTab('sensory')">
+    <span class="tab-icon">🖐️</span>Choices
+  </button>
+  <button class="tab-btn" onclick="switchTab('token')">
+    <span class="tab-icon">⭐</span>Tokens
+  </button>
+  <button class="tab-btn" onclick="switchTab('firstthen')">
+    <span class="tab-icon">1️⃣</span>First/Then
+  </button>
+  <button class="tab-btn" onclick="switchTab('timer')">
+    <span class="tab-icon">⏱️</span>Timer
+  </button>
+
+</div>
+
+<!-- ═══════════ SCHEDULE ═══════════ -->
+<div id="panel-schedule" class="panel active">
+  <div class="panel-title">Today's Schedule 📋</div>
+  <div class="schedule-list">
+    <div class="schedule-item" onclick="toggleScheduleItem(this)">
+      <div class="num">1</div>
+      <div class="info"><div class="label">Morning Meeting</div></div>
+      <div class="emoji">🗣️</div>
+    </div>
+    <div class="schedule-item" onclick="toggleScheduleItem(this)">
+      <div class="num">2</div>
+      <div class="info"><div class="label">Math</div></div>
+      <div class="emoji">🧮</div>
+    </div>
+    <div class="schedule-item" onclick="toggleScheduleItem(this)">
+      <div class="num">3</div>
+      <div class="info"><div class="label">Reading</div></div>
+      <div class="emoji">📖</div>
+    </div>
+    <div class="schedule-item" onclick="toggleScheduleItem(this)">
+      <div class="num">4</div>
+      <div class="info"><div class="label">STEAM</div></div>
+      <div class="emoji">🔬</div>
+    </div>
+  </div>
+  <div class="schedule-hint">Tap an activity when completed</div>
+</div>
+
+<!-- ═══════════ SENSORY CHOICE BOARD ═══════════ -->
+<div id="panel-sensory" class="panel">
+  <div class="panel-title">I want... 🙋</div>
+  <div class="choice-grid">
+    <div class="choice-card" data-cat="move" onclick="selectChoice(this)">
+      <div class="emoji">🏃</div><div class="label">Walk</div><div class="sublabel">Movement break</div>
+    </div>
+    <div class="choice-card" data-cat="calm" onclick="selectChoice(this)">
+      <div class="emoji">🤗</div><div class="label">Squeeze</div><div class="sublabel">Deep pressure</div>
+    </div>
+    <div class="choice-card" data-cat="calm" onclick="selectChoice(this)">
+      <div class="emoji">🧘</div><div class="label">Break</div><div class="sublabel">Quiet time</div>
+    </div>
+    <div class="choice-card" data-cat="play" onclick="selectChoice(this)">
+      <div class="emoji">📱</div><div class="label">iPad</div><div class="sublabel">Camera / Peppa Pig</div>
+    </div>
+    <div class="choice-card" data-cat="food" onclick="selectChoice(this)">
+      <div class="emoji">🍪</div><div class="label">Snack</div><div class="sublabel">Preferred food</div>
+    </div>
+    <div class="choice-card" data-cat="calm" onclick="selectChoice(this)">
+      <div class="emoji">🫧</div><div class="label">Bubbles</div><div class="sublabel">Blow bubbles</div>
+    </div>
+    <div class="choice-card" data-cat="play" onclick="selectChoice(this)">
+      <div class="emoji">🧱</div><div class="label">Legos</div><div class="sublabel">Build & play</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TOKEN BOARD ═══════════ -->
+<div id="panel-token" class="panel">
+  <div class="panel-title">My Tokens ⭐</div>
+  <div class="token-section">
+    <div class="token-row" id="tokenRow"></div>
+    <div class="token-controls">
+      <button class="token-ctrl-btn add" onclick="addToken()">⭐ Earn Token</button>
+      <button class="token-ctrl-btn undo" onclick="undoToken()">↩️ Undo</button>
+      <button class="token-ctrl-btn reset" onclick="resetTokens()">🔄 Reset</button>
+    </div>
+    <div class="token-goal" id="rewardDisplay">
+      <div class="emoji" id="rewardEmoji">🎯</div>
+      <div class="label" id="rewardLabel">Pick a reward below!</div>
+    </div>
+    <div class="reward-picker">
+      <div class="reward-option" onclick="pickReward(this, '📱', 'iPad Time')">
+        <div class="emoji">📱</div><div class="label">iPad</div>
+      </div>
+      <div class="reward-option" onclick="pickReward(this, '🍪', 'Snack!')">
+        <div class="emoji">🍪</div><div class="label">Snack</div>
+      </div>
+      <div class="reward-option" onclick="pickReward(this, '🏃', 'Go for a Walk!')">
+        <div class="emoji">🏃</div><div class="label">Walk</div>
+      </div>
+      <div class="reward-option" onclick="pickReward(this, '🧸', 'Free Play!')">
+        <div class="emoji">🧸</div><div class="label">Free Play</div>
+      </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ FIRST / THEN ═══════════ -->
+<div id="panel-firstthen" class="panel">
+  <div class="panel-title">First / Then 📋</div>
+  <div class="first-then-container">
+    <div class="ft-card first" id="firstCard">
+      <div class="ft-label">FIRST</div>
+      <div class="emoji" id="firstEmoji">✏️</div>
+      <div class="label" id="firstLabel">Work</div>
+    </div>
+    <div class="ft-arrow">⬇️</div>
+    <div class="ft-card then" id="thenCard">
+      <div class="ft-label">THEN</div>
+      <div class="emoji" id="thenEmoji">⭐</div>
+      <div class="label" id="thenLabel">Reward!</div>
+    </div>
+
+    <div class="ft-section-label">Tap to set FIRST:</div>
+    <div class="ft-picker-grid">
+      <div class="ft-pick-btn" onclick="setFT('first','✏️','Write')"><div class="emoji">✏️</div><div class="label">Write</div></div>
+      <div class="ft-pick-btn" onclick="setFT('first','📖','Read')"><div class="emoji">📖</div><div class="label">Read</div></div>
+      <div class="ft-pick-btn" onclick="setFT('first','🧮','Math')"><div class="emoji">🧮</div><div class="label">Math</div></div>
+      <div class="ft-pick-btn" onclick="setFT('first','🖥️','Computer')"><div class="emoji">🖥️</div><div class="label">Computer</div></div>
+      <div class="ft-pick-btn" onclick="setFT('first','🗣️','Talk')"><div class="emoji">🗣️</div><div class="label">Talk</div></div>
+      <div class="ft-pick-btn" onclick="setFT('first','🪑','Sit')"><div class="emoji">🪑</div><div class="label">Sit</div></div>
+    </div>
+
+    <div class="ft-section-label">Tap to set THEN:</div>
+    <div class="ft-picker-grid">
+      <div class="ft-pick-btn" onclick="setFT('then','📱','iPad')"><div class="emoji">📱</div><div class="label">iPad</div></div>
+      <div class="ft-pick-btn" onclick="setFT('then','🐷','Peppa Pig')"><div class="emoji">🐷</div><div class="label">Peppa Pig</div></div>
+      <div class="ft-pick-btn" onclick="setFT('then','🍪','Snack')"><div class="emoji">🍪</div><div class="label">Snack</div></div>
+      <div class="ft-pick-btn" onclick="setFT('then','🏃','Move')"><div class="emoji">🏃</div><div class="label">Move</div></div>
+      <div class="ft-pick-btn" onclick="setFT('then','📸','Camera')"><div class="emoji">📸</div><div class="label">Camera</div></div>
+      <div class="ft-pick-btn" onclick="setFT('then','🧸','Play')"><div class="emoji">🧸</div><div class="label">Play</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TIMER ═══════════ -->
+<div id="panel-timer" class="panel">
+  <div class="panel-title">Timer ⏱️</div>
+  <div class="timer-panel">
+    <div class="timer-presets">
+      <button class="preset-btn" onclick="setTimer(60)">1 min</button>
+      <button class="preset-btn active" onclick="setTimer(120)">2 min</button>
+      <button class="preset-btn" onclick="setTimer(180)">3 min</button>
+      <button class="preset-btn" onclick="setTimer(300)">5 min</button>
+      <button class="preset-btn" onclick="setTimer(600)">10 min</button>
+      <button class="preset-btn" onclick="setTimer(900)">15 min</button>
+    </div>
+    <div class="timer-ring-container">
+      <svg viewBox="0 0 240 240" width="240" height="240">
+        <circle class="timer-ring-bg" cx="120" cy="120" r="100" />
+        <circle class="timer-ring-fg" id="timerRing" cx="120" cy="120" r="100"
+          stroke-dasharray="628.3" stroke-dashoffset="0" />
+      </svg>
+      <div class="timer-center-text" id="timerText">2:00</div>
+    </div>
+    <div class="timer-actions">
+      <button class="timer-act-btn start" id="timerStartBtn" onclick="toggleTimer()">▶️ Start</button>
+      <button class="timer-act-btn resetT" onclick="resetTimer()">🔄 Reset</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ═══════════ CELEBRATION ═══════════ -->
+<div class="celebration" id="celebration">
+  <div class="celebration-card">
+    <div class="emoji">🎉</div>
+    <div class="msg">Great Job!</div>
+    <div class="sub" id="celebReward">You earned your reward!</div>
+    <button onclick="closeCelebration()">👍 Awesome!</button>
+  </div>
+</div>
+
+<script>
+  // ── TAB SWITCHING ──
+  function switchTab(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // ── SCHEDULE ──
+  function toggleScheduleItem(el) {
+    el.classList.toggle('done');
+    const items = document.querySelectorAll('.schedule-item');
+    items.forEach(i => i.classList.remove('current'));
+    for (const item of items) {
+      if (!item.classList.contains('done')) { item.classList.add('current'); break; }
+    }
+  }
+
+  // ── SENSORY CHOICE BOARD ──
+  function selectChoice(el) {
+    document.querySelectorAll('.choice-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    setTimeout(() => el.classList.remove('selected'), 2000);
+  }
+
+  // ── TOKEN BOARD ──
+  const TOKEN_COUNT = 5;
+  let tokensEarned = 0;
+  let currentReward = { emoji: '⭐', label: 'Pick a reward!' };
+
+  function renderTokens() {
+    const row = document.getElementById('tokenRow');
+    row.innerHTML = '';
+    for (let i = 0; i < TOKEN_COUNT; i++) {
+      const t = document.createElement('div');
+      t.className = 'token' + (i < tokensEarned ? ' earned' : '');
+      t.textContent = i < tokensEarned ? '⭐' : '';
+      row.appendChild(t);
+    }
+  }
+  function addToken() {
+    if (tokensEarned < TOKEN_COUNT) {
+      tokensEarned++;
+      renderTokens();
+      if (tokensEarned === TOKEN_COUNT) {
+        document.getElementById('celebReward').textContent = 'You earned: ' + currentReward.label;
+        document.getElementById('celebration').classList.add('show');
+      }
+    }
+  }
+  function undoToken() { if (tokensEarned > 0) { tokensEarned--; renderTokens(); } }
+  function resetTokens() { tokensEarned = 0; renderTokens(); }
+  function pickReward(el, emoji, label) {
+    document.querySelectorAll('.reward-option').forEach(o => o.classList.remove('active'));
+    el.classList.add('active');
+    currentReward = { emoji, label };
+    document.getElementById('rewardEmoji').textContent = emoji;
+    document.getElementById('rewardLabel').textContent = 'Working for: ' + label;
+  }
+  function closeCelebration() { document.getElementById('celebration').classList.remove('show'); }
+  renderTokens();
+
+  // ── FIRST / THEN ──
+  function setFT(which, emoji, label) {
+    document.getElementById(which + 'Emoji').textContent = emoji;
+    document.getElementById(which + 'Label').textContent = label;
+  }
+
+  // ── VISUAL TIMER ──
+  let timerTotal = 120, timerRemaining = 120, timerInterval = null, timerRunning = false;
+  const circumference = 2 * Math.PI * 100;
+
+  function setTimer(sec) {
+    if (timerRunning) return;
+    timerTotal = sec; timerRemaining = sec;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    updateTimerDisplay();
+  }
+  function updateTimerDisplay() {
+    const m = Math.floor(timerRemaining / 60);
+    const s = timerRemaining % 60;
+    document.getElementById('timerText').textContent = m + ':' + String(s).padStart(2, '0');
+    const pct = timerRemaining / timerTotal;
+    const offset = circumference * (1 - pct);
+    const ring = document.getElementById('timerRing');
+    ring.style.strokeDashoffset = offset;
+    ring.classList.remove('warn', 'critical');
+    if (pct <= 0.15) ring.classList.add('critical');
+    else if (pct <= 0.33) ring.classList.add('warn');
+  }
+  function toggleTimer() {
+    const btn = document.getElementById('timerStartBtn');
+    if (timerRunning) {
+      clearInterval(timerInterval); timerRunning = false;
+      btn.textContent = '▶️ Start'; btn.classList.remove('stop'); btn.classList.add('start');
+    } else {
+      if (timerRemaining <= 0) timerRemaining = timerTotal;
+      timerRunning = true;
+      btn.textContent = '⏸️ Pause'; btn.classList.remove('start'); btn.classList.add('stop');
+      timerInterval = setInterval(() => {
+        timerRemaining--;
+        updateTimerDisplay();
+        if (timerRemaining <= 0) {
+          clearInterval(timerInterval); timerRunning = false;
+          btn.textContent = '▶️ Start'; btn.classList.remove('stop'); btn.classList.add('start');
+          timerDone();
+        }
+      }, 1000);
+    }
+  }
+  function resetTimer() {
+    clearInterval(timerInterval); timerRunning = false; timerRemaining = timerTotal;
+    updateTimerDisplay();
+    const btn = document.getElementById('timerStartBtn');
+    btn.textContent = '▶️ Start'; btn.classList.remove('stop'); btn.classList.add('start');
+  }
+  function timerDone() {
+    document.getElementById('timerText').textContent = '✅';
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 300, 600].forEach(delay => {
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = 880; osc.type = 'sine'; gain.gain.value = 0.3;
+        osc.start(ctx.currentTime + delay / 1000);
+        osc.stop(ctx.currentTime + delay / 1000 + 0.2);
+      });
+    } catch(e) {}
+  }
+  updateTimerDisplay();
+
+
+</script>
+
+</body>
+</html>
