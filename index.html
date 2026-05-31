@@ -37,6 +37,28 @@
     user-select: none;
   }
 
+  /* ─────────────────────────────────────────
+     CRAYON BORDER TECHNIQUE
+     .cc = crayon container
+     Content stays sharp; only ::after is filtered.
+  ───────────────────────────────────────── */
+  .cc {
+    position: relative;
+    background: transparent;
+    isolation: isolate;
+  }
+  .cc::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--cc-bg, var(--card));
+    border: 4px solid var(--cc-color, var(--accent-blue));
+    box-shadow: var(--cc-shadow, var(--shadow));
+    filter: url(#crayon-filter);
+  }
+
   /* ── NAV TABS ── */
   .tab-bar {
     display: flex;
@@ -88,17 +110,21 @@
   /* ── SCHEDULE ── */
   .schedule-list { display: flex; flex-direction: column; gap: 14px; }
   .schedule-item {
-    background: var(--card);
+    --cc-color: var(--accent-blue);
+    --cc-bg: var(--card);
+    --cc-shadow: var(--shadow);
     border-radius: var(--radius);
     padding: 20px;
-    box-shadow: var(--shadow);
     display: flex;
     align-items: center;
     gap: 16px;
     cursor: pointer;
     transition: all 0.2s;
-    border: 4px solid transparent;
   }
+  .schedule-item:nth-child(2) { --cc-color: var(--accent-orange); }
+  .schedule-item:nth-child(3) { --cc-color: var(--accent-green); }
+  .schedule-item:nth-child(4) { --cc-color: var(--accent-purple); }
+
   .schedule-item .num {
     width: 48px;
     height: 48px;
@@ -118,22 +144,11 @@
   .schedule-item .info { flex: 1; }
   .schedule-item .info .label { font-size: 20px; font-weight: 800; }
   .schedule-item .emoji { font-size: 40px; }
-  .schedule-item.done {
-    opacity: 0.5;
-    border-color: var(--accent-green);
-    text-decoration: line-through;
-  }
-  .schedule-item.done::after {
-    content: '✅';
-    font-size: 28px;
-    margin-left: auto;
-  }
-  .schedule-item.current {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3), var(--shadow);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(66,153,225,0.3), var(--shadow); } 50% { box-shadow: 0 0 0 6px rgba(66,153,225,0.15), var(--shadow); } }
+  .schedule-item.done { opacity: 0.5; }
+  .schedule-item.done .info .label { text-decoration: line-through; }
+  .schedule-item.done::before { content: '✅'; font-size: 28px; margin-left: auto; order: 99; }
+  .schedule-item.current { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.01); } }
   .schedule-hint {
     text-align: center;
     color: #A0AEC0;
@@ -149,78 +164,110 @@
     gap: 14px;
   }
   .choice-card {
-    background: var(--card);
+    --cc-bg: var(--card);
+    --cc-color: var(--accent-blue);
+    --cc-shadow: var(--shadow);
     border-radius: var(--radius);
     padding: 20px 12px;
     text-align: center;
-    box-shadow: var(--shadow);
     cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    border: 4px solid transparent;
-    position: relative;
+    transition: transform 0.15s;
   }
+  .choice-card[data-cat="move"] { --cc-color: var(--accent-blue); }
+  .choice-card[data-cat="calm"] { --cc-color: var(--accent-purple); }
+  .choice-card[data-cat="food"] { --cc-color: var(--accent-orange); }
+  .choice-card[data-cat="play"] { --cc-color: var(--accent-teal); }
   .choice-card:active { transform: scale(0.95); }
-  .choice-card.selected {
-    border-color: var(--accent-green);
-    box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.3), var(--shadow);
-  }
+  .choice-card.selected { --cc-color: var(--accent-green); }
   .choice-card .emoji { font-size: 56px; line-height: 1.1; }
   .choice-card .label { font-size: 18px; font-weight: 800; margin-top: 8px; line-height: 1.2; }
   .choice-card .sublabel { font-size: 13px; font-weight: 600; color: #A0AEC0; margin-top: 2px; }
-  .choice-card[data-cat="move"] { border-left: 6px solid var(--accent-blue); }
-  .choice-card[data-cat="calm"] { border-left: 6px solid var(--accent-purple); }
-  .choice-card[data-cat="food"] { border-left: 6px solid var(--accent-orange); }
-  .choice-card[data-cat="play"] { border-left: 6px solid var(--accent-teal); }
-
-
 
   /* ── TOKEN BOARD ── */
   .token-section { text-align: center; }
   .token-row { display: flex; justify-content: center; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
   .token {
-    width: 70px; height: 70px; border-radius: 50%; background: var(--token-empty);
+    --cc-bg: var(--token-empty);
+    --cc-color: #CBD5E0;
+    --cc-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
+    width: 70px; height: 70px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; font-size: 36px;
-    cursor: pointer; transition: all 0.25s; border: 4px solid transparent;
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
+    cursor: pointer; transition: all 0.25s;
   }
   .token.earned {
-    background: linear-gradient(135deg, #48BB78, #68D391); border-color: #38A169;
-    box-shadow: 0 4px 15px rgba(72,187,120,0.4); animation: popIn 0.3s ease;
+    --cc-color: #38A169;
+    --cc-shadow: 0 4px 15px rgba(72,187,120,0.4);
+    animation: popIn 0.3s ease;
   }
+  .token.earned::after { background: linear-gradient(135deg, #48BB78, #68D391); }
   @keyframes popIn { 0% { transform: scale(0.5); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
 
   .token-goal {
-    background: var(--card); border-radius: var(--radius); padding: 20px;
-    box-shadow: var(--shadow); margin-top: 16px;
+    --cc-bg: var(--card);
+    --cc-color: var(--accent-orange);
+    --cc-shadow: var(--shadow);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 16px;
+    text-align: center;
   }
   .token-goal .emoji { font-size: 48px; }
   .token-goal .label { font-size: 18px; font-weight: 800; margin-top: 6px; }
+
   .token-controls { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
   .token-ctrl-btn {
-    padding: 12px 24px; border-radius: 14px; border: none;
+    --cc-bg: #E2E8F0;
+    --cc-color: #CBD5E0;
+    --cc-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 14px; border: none;
     font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800;
-    cursor: pointer; transition: all 0.15s;
+    cursor: pointer; transition: transform 0.15s;
+    padding: 12px 24px; background: transparent; color: #718096;
   }
   .token-ctrl-btn:active { transform: scale(0.95); }
-  .token-ctrl-btn.add { background: var(--accent-green); color: white; }
-  .token-ctrl-btn.undo { background: #E2E8F0; color: #718096; }
-  .token-ctrl-btn.reset { background: var(--accent-red); color: white; }
+  .token-ctrl-btn.add {
+    --cc-bg: var(--accent-green);
+    --cc-color: #2F855A;
+    color: white;
+  }
+  .token-ctrl-btn.undo {
+    --cc-bg: #E2E8F0;
+    --cc-color: #CBD5E0;
+    color: #718096;
+  }
+  .token-ctrl-btn.reset {
+    --cc-bg: var(--accent-red);
+    --cc-color: #C53030;
+    color: white;
+  }
 
   .reward-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
   .reward-option {
-    padding: 14px 8px; background: var(--card); border-radius: 14px;
-    border: 3px solid #E2E8F0; cursor: pointer; text-align: center; transition: all 0.15s;
+    --cc-bg: var(--card);
+    --cc-color: #E2E8F0;
+    --cc-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 14px 8px; border-radius: 14px;
+    cursor: pointer; text-align: center; transition: transform 0.15s;
   }
-  .reward-option.active { border-color: var(--accent-orange); background: #FFFAF0; }
+  .reward-option.active {
+    --cc-color: var(--accent-orange);
+    --cc-bg: #FFFAF0;
+  }
+  .reward-option:active { transform: scale(0.95); }
   .reward-option .emoji { font-size: 32px; }
   .reward-option .label { font-size: 13px; font-weight: 800; margin-top: 4px; }
 
   /* ── FIRST / THEN ── */
   .first-then-container { display: flex; flex-direction: column; gap: 16px; align-items: center; }
   .ft-card {
-    width: 100%; max-width: 360px; background: var(--card); border-radius: var(--radius);
-    padding: 24px; box-shadow: var(--shadow); text-align: center; position: relative;
+    --cc-bg: var(--card);
+    --cc-color: var(--accent-blue);
+    --cc-shadow: var(--shadow);
+    width: 100%; max-width: 360px;
+    border-radius: var(--radius);
+    padding: 24px; text-align: center; position: relative;
   }
+  .ft-card.then { --cc-color: var(--accent-green); }
   .ft-card .ft-label {
     position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
     padding: 4px 20px; border-radius: 20px; font-size: 16px; font-weight: 900;
@@ -235,9 +282,13 @@
 
   .ft-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 360px; margin-top: 8px; }
   .ft-pick-btn {
-    padding: 12px 6px; background: var(--card); border-radius: 14px;
-    border: 3px solid #E2E8F0; cursor: pointer; text-align: center;
-    transition: all 0.15s; font-family: 'Nunito', sans-serif;
+    --cc-bg: var(--card);
+    --cc-color: #E2E8F0;
+    --cc-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 12px 6px; border-radius: 14px;
+    cursor: pointer; text-align: center;
+    transition: transform 0.15s; font-family: 'Nunito', sans-serif; border: none;
+    background: transparent;
   }
   .ft-pick-btn:active { transform: scale(0.95); }
   .ft-pick-btn .emoji { font-size: 28px; }
@@ -251,47 +302,70 @@
   .celebration {
     position: fixed; inset: 0; background: rgba(0,0,0,0.5);
     display: none; align-items: center; justify-content: center; z-index: 999;
-    animation: fadeIn 0.3s ease;
   }
   .celebration.show { display: flex; }
   .celebration-card {
-    background: white; border-radius: 28px; padding: 40px; text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: popIn 0.4s ease;
+    --cc-bg: white;
+    --cc-color: var(--accent-green);
+    --cc-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border-radius: 28px; padding: 40px; text-align: center;
+    animation: popIn 0.4s ease;
   }
   .celebration-card .emoji { font-size: 80px; }
   .celebration-card .msg { font-size: 28px; font-weight: 900; margin-top: 12px; }
   .celebration-card .sub { font-size: 16px; color: #718096; font-weight: 700; margin-top: 6px; }
-  .celebration-card button {
+  .celebration-card .close-btn {
+    --cc-bg: var(--accent-green);
+    --cc-color: #2F855A;
+    --cc-shadow: 0 4px 12px rgba(72,187,120,0.4);
+    display: inline-block;
     margin-top: 20px; padding: 14px 36px; border-radius: 16px; border: none;
-    background: var(--accent-green); color: white; font-family: 'Nunito', sans-serif;
-    font-size: 18px; font-weight: 800; cursor: pointer;
+    font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 800;
+    cursor: pointer; color: white; background: transparent;
+    transition: transform 0.15s;
   }
+  .celebration-card .close-btn:active { transform: scale(0.95); }
 
   /* ── TIMER ── */
   .timer-panel { text-align: center; }
-  .timer-display {
-    font-size: 96px; font-weight: 900; letter-spacing: -3px; margin: 20px 0;
-    color: var(--text); transition: color 0.3s;
-  }
-  .timer-display.warn { color: var(--accent-orange); }
-  .timer-display.critical { color: var(--accent-red); animation: pulse 0.8s infinite; }
   .timer-presets { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
   .preset-btn {
-    padding: 12px 20px; border-radius: 14px; border: 3px solid #E2E8F0;
-    background: var(--card); font-family: 'Nunito', sans-serif; font-size: 16px;
-    font-weight: 800; cursor: pointer; transition: all 0.15s;
+    --cc-bg: var(--card);
+    --cc-color: #E2E8F0;
+    --cc-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 12px 20px; border-radius: 14px; border: none;
+    background: transparent;
+    font-family: 'Nunito', sans-serif; font-size: 16px;
+    font-weight: 800; cursor: pointer; transition: transform 0.15s; color: var(--text);
   }
-  .preset-btn.active { border-color: var(--accent-blue); background: #EBF8FF; color: var(--accent-blue); }
+  .preset-btn:active { transform: scale(0.95); }
+  .preset-btn.active {
+    --cc-color: var(--accent-blue);
+    --cc-bg: #EBF8FF;
+    color: var(--accent-blue);
+  }
   .timer-actions { display: flex; gap: 12px; justify-content: center; }
   .timer-act-btn {
     padding: 14px 32px; border-radius: 16px; border: none;
     font-family: 'Nunito', sans-serif; font-size: 17px; font-weight: 800;
-    cursor: pointer; transition: all 0.15s;
+    cursor: pointer; transition: transform 0.15s; background: transparent;
   }
   .timer-act-btn:active { transform: scale(0.95); }
-  .timer-act-btn.start { background: var(--accent-green); color: white; }
-  .timer-act-btn.stop { background: var(--accent-red); color: white; }
-  .timer-act-btn.resetT { background: #E2E8F0; color: #718096; }
+  .timer-act-btn.start {
+    --cc-bg: var(--accent-green); --cc-color: #2F855A;
+    --cc-shadow: 0 4px 12px rgba(72,187,120,0.35);
+    color: white;
+  }
+  .timer-act-btn.stop {
+    --cc-bg: var(--accent-red); --cc-color: #C53030;
+    --cc-shadow: 0 4px 12px rgba(252,129,129,0.35);
+    color: white;
+  }
+  .timer-act-btn.resetT {
+    --cc-bg: #E2E8F0; --cc-color: #CBD5E0;
+    --cc-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    color: #718096;
+  }
 
   .timer-ring-container { position: relative; width: 240px; height: 240px; margin: 0 auto; }
   .timer-ring-container svg { transform: rotate(-90deg); }
@@ -310,6 +384,17 @@
 </head>
 <body>
 
+<!-- CRAYON SVG FILTER -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none; position:absolute; width:0; height:0;">
+  <defs>
+    <filter id="crayon-filter" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5"
+                         xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </defs>
+</svg>
+
 <!-- TAB BAR -->
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('schedule')">
@@ -327,29 +412,28 @@
   <button class="tab-btn" onclick="switchTab('timer')">
     <span class="tab-icon">⏱️</span>Timer
   </button>
-
 </div>
 
 <!-- ═══════════ SCHEDULE ═══════════ -->
 <div id="panel-schedule" class="panel active">
   <div class="panel-title">Today's Schedule 📋</div>
   <div class="schedule-list">
-    <div class="schedule-item" onclick="toggleScheduleItem(this)">
+    <div class="schedule-item cc" onclick="toggleScheduleItem(this)">
       <div class="num">1</div>
       <div class="info"><div class="label">Morning Meeting</div></div>
       <div class="emoji">🗣️</div>
     </div>
-    <div class="schedule-item" onclick="toggleScheduleItem(this)">
+    <div class="schedule-item cc" onclick="toggleScheduleItem(this)">
       <div class="num">2</div>
       <div class="info"><div class="label">Math</div></div>
       <div class="emoji">🧮</div>
     </div>
-    <div class="schedule-item" onclick="toggleScheduleItem(this)">
+    <div class="schedule-item cc" onclick="toggleScheduleItem(this)">
       <div class="num">3</div>
       <div class="info"><div class="label">Reading</div></div>
       <div class="emoji">📖</div>
     </div>
-    <div class="schedule-item" onclick="toggleScheduleItem(this)">
+    <div class="schedule-item cc" onclick="toggleScheduleItem(this)">
       <div class="num">4</div>
       <div class="info"><div class="label">STEAM</div></div>
       <div class="emoji">🔬</div>
@@ -362,25 +446,25 @@
 <div id="panel-sensory" class="panel">
   <div class="panel-title">I want... 🙋</div>
   <div class="choice-grid">
-    <div class="choice-card" data-cat="move" onclick="selectChoice(this)">
+    <div class="choice-card cc" data-cat="move" onclick="selectChoice(this)">
       <div class="emoji">🏃</div><div class="label">Walk</div><div class="sublabel">Movement break</div>
     </div>
-    <div class="choice-card" data-cat="calm" onclick="selectChoice(this)">
+    <div class="choice-card cc" data-cat="calm" onclick="selectChoice(this)">
       <div class="emoji">🤗</div><div class="label">Squeeze</div><div class="sublabel">Deep pressure</div>
     </div>
-    <div class="choice-card" data-cat="calm" onclick="selectChoice(this)">
+    <div class="choice-card cc" data-cat="calm" onclick="selectChoice(this)">
       <div class="emoji">🧘</div><div class="label">Break</div><div class="sublabel">Quiet time</div>
     </div>
-    <div class="choice-card" data-cat="play" onclick="selectChoice(this)">
+    <div class="choice-card cc" data-cat="play" onclick="selectChoice(this)">
       <div class="emoji">📱</div><div class="label">iPad</div><div class="sublabel">Camera / Peppa Pig</div>
     </div>
-    <div class="choice-card" data-cat="food" onclick="selectChoice(this)">
+    <div class="choice-card cc" data-cat="food" onclick="selectChoice(this)">
       <div class="emoji">🍪</div><div class="label">Snack</div><div class="sublabel">Preferred food</div>
     </div>
-    <div class="choice-card" data-cat="calm" onclick="selectChoice(this)">
+    <div class="choice-card cc" data-cat="calm" onclick="selectChoice(this)">
       <div class="emoji">🫧</div><div class="label">Bubbles</div><div class="sublabel">Blow bubbles</div>
     </div>
-    <div class="choice-card" data-cat="play" onclick="selectChoice(this)">
+    <div class="choice-card cc" data-cat="play" onclick="selectChoice(this)">
       <div class="emoji">🧱</div><div class="label">Legos</div><div class="sublabel">Build & play</div>
     </div>
   </div>
@@ -392,28 +476,26 @@
   <div class="token-section">
     <div class="token-row" id="tokenRow"></div>
     <div class="token-controls">
-      <button class="token-ctrl-btn add" onclick="addToken()">⭐ Earn Token</button>
-      <button class="token-ctrl-btn undo" onclick="undoToken()">↩️ Undo</button>
-      <button class="token-ctrl-btn reset" onclick="resetTokens()">🔄 Reset</button>
+      <button class="token-ctrl-btn add cc" onclick="addToken()">⭐ Earn Token</button>
+      <button class="token-ctrl-btn undo cc" onclick="undoToken()">↩️ Undo</button>
+      <button class="token-ctrl-btn reset cc" onclick="resetTokens()">🔄 Reset</button>
     </div>
-    <div class="token-goal" id="rewardDisplay">
+    <div class="token-goal cc" id="rewardDisplay">
       <div class="emoji" id="rewardEmoji">🎯</div>
       <div class="label" id="rewardLabel">Pick a reward below!</div>
     </div>
     <div class="reward-picker">
-      <div class="reward-option" onclick="pickReward(this, '📱', 'iPad Time')">
+      <div class="reward-option cc" onclick="pickReward(this, '📱', 'iPad Time')">
         <div class="emoji">📱</div><div class="label">iPad</div>
       </div>
-      <div class="reward-option" onclick="pickReward(this, '🍪', 'Snack!')">
+      <div class="reward-option cc" onclick="pickReward(this, '🍪', 'Snack!')">
         <div class="emoji">🍪</div><div class="label">Snack</div>
       </div>
-      <div class="reward-option" onclick="pickReward(this, '🏃', 'Go for a Walk!')">
+      <div class="reward-option cc" onclick="pickReward(this, '🏃', 'Go for a Walk!')">
         <div class="emoji">🏃</div><div class="label">Walk</div>
       </div>
-      <div class="reward-option" onclick="pickReward(this, '🧸', 'Free Play!')">
+      <div class="reward-option cc" onclick="pickReward(this, '🧸', 'Free Play!')">
         <div class="emoji">🧸</div><div class="label">Free Play</div>
-      </div>
-
       </div>
     </div>
   </div>
@@ -423,13 +505,13 @@
 <div id="panel-firstthen" class="panel">
   <div class="panel-title">First / Then 📋</div>
   <div class="first-then-container">
-    <div class="ft-card first" id="firstCard">
+    <div class="ft-card first cc" id="firstCard">
       <div class="ft-label">FIRST</div>
       <div class="emoji" id="firstEmoji">✏️</div>
       <div class="label" id="firstLabel">Work</div>
     </div>
     <div class="ft-arrow">⬇️</div>
-    <div class="ft-card then" id="thenCard">
+    <div class="ft-card then cc" id="thenCard">
       <div class="ft-label">THEN</div>
       <div class="emoji" id="thenEmoji">⭐</div>
       <div class="label" id="thenLabel">Reward!</div>
@@ -437,22 +519,22 @@
 
     <div class="ft-section-label">Tap to set FIRST:</div>
     <div class="ft-picker-grid">
-      <div class="ft-pick-btn" onclick="setFT('first','✏️','Write')"><div class="emoji">✏️</div><div class="label">Write</div></div>
-      <div class="ft-pick-btn" onclick="setFT('first','📖','Read')"><div class="emoji">📖</div><div class="label">Read</div></div>
-      <div class="ft-pick-btn" onclick="setFT('first','🧮','Math')"><div class="emoji">🧮</div><div class="label">Math</div></div>
-      <div class="ft-pick-btn" onclick="setFT('first','🖥️','Computer')"><div class="emoji">🖥️</div><div class="label">Computer</div></div>
-      <div class="ft-pick-btn" onclick="setFT('first','🗣️','Talk')"><div class="emoji">🗣️</div><div class="label">Talk</div></div>
-      <div class="ft-pick-btn" onclick="setFT('first','🪑','Sit')"><div class="emoji">🪑</div><div class="label">Sit</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('first','✏️','Write')"><div class="emoji">✏️</div><div class="label">Write</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('first','📖','Read')"><div class="emoji">📖</div><div class="label">Read</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('first','🧮','Math')"><div class="emoji">🧮</div><div class="label">Math</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('first','🖥️','Computer')"><div class="emoji">🖥️</div><div class="label">Computer</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('first','🗣️','Talk')"><div class="emoji">🗣️</div><div class="label">Talk</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('first','🪑','Sit')"><div class="emoji">🪑</div><div class="label">Sit</div></div>
     </div>
 
     <div class="ft-section-label">Tap to set THEN:</div>
     <div class="ft-picker-grid">
-      <div class="ft-pick-btn" onclick="setFT('then','📱','iPad')"><div class="emoji">📱</div><div class="label">iPad</div></div>
-      <div class="ft-pick-btn" onclick="setFT('then','🐷','Peppa Pig')"><div class="emoji">🐷</div><div class="label">Peppa Pig</div></div>
-      <div class="ft-pick-btn" onclick="setFT('then','🍪','Snack')"><div class="emoji">🍪</div><div class="label">Snack</div></div>
-      <div class="ft-pick-btn" onclick="setFT('then','🏃','Move')"><div class="emoji">🏃</div><div class="label">Move</div></div>
-      <div class="ft-pick-btn" onclick="setFT('then','📸','Camera')"><div class="emoji">📸</div><div class="label">Camera</div></div>
-      <div class="ft-pick-btn" onclick="setFT('then','🧸','Play')"><div class="emoji">🧸</div><div class="label">Play</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('then','📱','iPad')"><div class="emoji">📱</div><div class="label">iPad</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('then','🐷','Peppa Pig')"><div class="emoji">🐷</div><div class="label">Peppa Pig</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('then','🍪','Snack')"><div class="emoji">🍪</div><div class="label">Snack</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('then','🏃','Move')"><div class="emoji">🏃</div><div class="label">Move</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('then','📸','Camera')"><div class="emoji">📸</div><div class="label">Camera</div></div>
+      <div class="ft-pick-btn cc" onclick="setFT('then','🧸','Play')"><div class="emoji">🧸</div><div class="label">Play</div></div>
     </div>
   </div>
 </div>
@@ -462,12 +544,12 @@
   <div class="panel-title">Timer ⏱️</div>
   <div class="timer-panel">
     <div class="timer-presets">
-      <button class="preset-btn" onclick="setTimer(60)">1 min</button>
-      <button class="preset-btn active" onclick="setTimer(120)">2 min</button>
-      <button class="preset-btn" onclick="setTimer(180)">3 min</button>
-      <button class="preset-btn" onclick="setTimer(300)">5 min</button>
-      <button class="preset-btn" onclick="setTimer(600)">10 min</button>
-      <button class="preset-btn" onclick="setTimer(900)">15 min</button>
+      <button class="preset-btn cc" onclick="setTimer(60)">1 min</button>
+      <button class="preset-btn cc active" onclick="setTimer(120)">2 min</button>
+      <button class="preset-btn cc" onclick="setTimer(180)">3 min</button>
+      <button class="preset-btn cc" onclick="setTimer(300)">5 min</button>
+      <button class="preset-btn cc" onclick="setTimer(600)">10 min</button>
+      <button class="preset-btn cc" onclick="setTimer(900)">15 min</button>
     </div>
     <div class="timer-ring-container">
       <svg viewBox="0 0 240 240" width="240" height="240">
@@ -478,21 +560,19 @@
       <div class="timer-center-text" id="timerText">2:00</div>
     </div>
     <div class="timer-actions">
-      <button class="timer-act-btn start" id="timerStartBtn" onclick="toggleTimer()">▶️ Start</button>
-      <button class="timer-act-btn resetT" onclick="resetTimer()">🔄 Reset</button>
+      <button class="timer-act-btn start cc" id="timerStartBtn" onclick="toggleTimer()">▶️ Start</button>
+      <button class="timer-act-btn resetT cc" onclick="resetTimer()">🔄 Reset</button>
     </div>
   </div>
 </div>
 
-
-
 <!-- ═══════════ CELEBRATION ═══════════ -->
 <div class="celebration" id="celebration">
-  <div class="celebration-card">
+  <div class="celebration-card cc">
     <div class="emoji">🎉</div>
     <div class="msg">Great Job!</div>
     <div class="sub" id="celebReward">You earned your reward!</div>
-    <button onclick="closeCelebration()">👍 Awesome!</button>
+    <button class="close-btn cc" onclick="closeCelebration()">👍 Awesome!</button>
   </div>
 </div>
 
@@ -532,7 +612,7 @@
     row.innerHTML = '';
     for (let i = 0; i < TOKEN_COUNT; i++) {
       const t = document.createElement('div');
-      t.className = 'token' + (i < tokensEarned ? ' earned' : '');
+      t.className = 'token cc' + (i < tokensEarned ? ' earned' : '');
       t.textContent = i < tokensEarned ? '⭐' : '';
       row.appendChild(t);
     }
@@ -628,8 +708,6 @@
     } catch(e) {}
   }
   updateTimerDisplay();
-
-
 </script>
 
 </body>
